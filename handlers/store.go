@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
 	"main/helpers"
 	"main/models"
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/charmbracelet/log"
 )
 
 var (
@@ -37,15 +38,31 @@ func SaveHtml(url string, body string) error {
 }
 
 func SaveReport() {
-	file, err := os.Create("../log/scan_report.log")
+	// Log folder oluştur
+	logPath := filepath.Join("log")
+	err := os.MkdirAll(logPath, 0755)
 	if err != nil {
-		fmt.Println("Rapor dosyası oluşturulamadı:", err)
+		fmt.Println("Log folder couldn't be created:", err)
+		return
+	}
+
+	// Log dosyası oluştur
+	filePath := filepath.Join(logPath, "scan_report.log")
+	file, err := os.Create(filePath)
+	if err != nil {
+		fmt.Println("Report file couldn't be created:", err)
 		return
 	}
 	defer file.Close()
+
 	for _, res := range Results {
 		line := fmt.Sprintf("[%s] Scanning: %s\n", res.Status, res.URL)
-		file.WriteString(line)
+		_, err := file.WriteString(line)
+		if err != nil {
+			fmt.Println("Error writing to report file:", err)
+			return
+		}
 	}
 
+	log.Info("Report saved:", filePath)
 }

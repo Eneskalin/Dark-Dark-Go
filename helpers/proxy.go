@@ -31,6 +31,6 @@ func GetTorClient() (*http.Client, error) {
 	}
 	defer resp.Body.Close()
 
-	log.Info("Tor server successfuly.")
+	log.Info("Tor server successfuly.",resp)
 	return client, nil
 }
